@@ -1,0 +1,260 @@
+.important {
+    color: rgba(255, 1, 31, 0.6);
+}
+
+.bordered {
+
+    border-color: red;
+    border-style: solid;
+    border-width: 1px;
+}
+
+body {
+    margin: 0;
+}
+
+
+.pageContainer {
+    padding: 1em;
+    border-color: green;
+    border-style: solid;
+    border-width: 1px;
+
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    min-height: 100vh;
+    align-items: center;
+    align-content: flex-start;
+
+}
+
+
+.pageItem {
+    margin: 1em;
+    border-color: red;
+    border-style: solid;
+    border-width: 1px;
+}
+
+
+
+/* General styling */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure the minimum height is the full viewport */
+}
+
+/* Header styling */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #282a42;
+    color: white;
+}
+
+.header-logo {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.header-menu {
+    display: flex;
+    gap: 15px; /* Space between menu items */
+}
+
+.header-menu-item {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.header-menu-item:hover {
+    text-decoration: underline;
+}
+
+/* Main content styling */
+.main-content {
+    flex: 1; /* Grow to take the available space */
+    padding: 20px;
+    justify-content: center;
+    background-color: #f4f4f4;
+    justify-items: center;
+}
+
+/* Footer styling */
+.footer {
+    padding: 10px 20px;
+    background-color: #282a42;
+    color: white;
+    text-align: center;
+}
+
+
+
+/* Product grid styling */
+.product-grid {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping */
+    gap: 20px; /* Space between products */
+    justify-content: center; /* Center the products */
+}
+
+.product-card {
+    position: relative;
+    flex: 1 1 calc(33.333% - 20px);
+    box-sizing: border-box;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-width: 20vw;
+    max-width: 30vw;
+    min-height: 35vh;
+
+}
+
+.button-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+.button-container button {
+    margin-left: 10px;
+    padding: 8px 12px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+}
+
+
+.button-container button:hover {
+    background-color: #0056b3;
+}
+
+.product-card h3 {
+    margin: 10px 0;
+    font-size: 1.2em;
+}
+
+.product-card p {
+    margin: 5px 0;
+    color: #555;
+}
+
+@media (max-width: 768px) {
+    .product-card {
+        flex: 1 1 calc(50% - 20px); /* 2 products per row for smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .product-card {
+        flex: 1 1 100%; /* 1 product per row for very small screens */
+    }
+}
+
+
+.gradient-custom-2 {
+    /* fallback for old browsers */
+    background: #fccb90;
+
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: -webkit-linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593);
+
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(to right, #ee7724, #d8363a, #dd3675, #b44593);
+}
+
+@media (min-width: 768px) {
+    .gradient-form {
+        height: 100vh !important;
+    }
+}
+@media (min-width: 769px) {
+    .gradient-custom-2 {
+        border-top-right-radius: .3rem;
+        border-bottom-right-radius: .3rem;
+    }
+}
+
+/* New Back Button Positioning */
+.back-button-container {
+    position: absolute;
+    top: 100px;  /* Adjust this as needed */
+    left: 20px;
+    z-index: 10;
+}
+
+.back-button {
+    padding: 8px 12px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #0056b3;
+}
+
+/* Styling for the rest of the page */
+.button-container {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+.button-container button {
+    margin-left: 10px;
+    padding: 8px 12px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button-container button:hover {
+    background-color: #0056b3;
+}
+
+/* Add Product Button Positioning */
+.add-product-container {
+    position: absolute;
+    top: 120px; /* Adjusted to be below the header */
+    left: 20px;
+    z-index: 10;
+}
+
+.add-product-button {
+    padding: 8px 12px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.add-product-button:hover {
+    background-color: #0056b3;
+}
+
