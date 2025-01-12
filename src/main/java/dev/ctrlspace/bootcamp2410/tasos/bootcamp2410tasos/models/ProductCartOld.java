@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductCart {
+public class ProductCartOld {
 
-    private Product product;
+    private ProductOld product;
     private Double cartQuantity;
 }

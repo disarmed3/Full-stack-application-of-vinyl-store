@@ -6,6 +6,9 @@ import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.DbPr
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.ProductCart;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.User;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.OrderRepository;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.ProductRepository;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.UserRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -15,10 +18,11 @@ import java.util.stream.Collectors;
 @Service
 public class OrderService {
 
+    private final ProductRepository productRepository;
     private DBService dbService;
     private OrderRepository orderRepository;
     private UserService userService;
-
+    private UserRepository userRepository;
     private ProductService productService;
 
     private List<String> validStatuses = Arrays.asList("NEW", "IN_PROGRESS", "COMPLETED", "CANCELLED");
@@ -26,11 +30,13 @@ public class OrderService {
 
     public OrderService(DBService dbService,
                         UserService userService,
-                        ProductService productService, OrderRepository orderRepository) {
+                        ProductService productService, OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository) {
         this.dbService = dbService;
         this.userService = userService;
         this.productService = productService;
         this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
+        this.productRepository = productRepository;
     }
 
 
@@ -39,7 +45,8 @@ public class OrderService {
 
         Order order = new Order();
 
-        User existingUser = dbService.getUserByEmail(user.getEmail());
+
+        User existingUser = userRepository.findByEmail(user.getEmail());
         if (existingUser == null) {
             throw new Exception("User not found");
         }
@@ -52,11 +59,23 @@ public class OrderService {
 
         order.setOrderNumber("ORD-" + UUID.randomUUID());
         order.setCreateAt(Instant.now());
+        order.setUpdateAt(Instant.now());
         order.setOrderStatus("NEW");
         order.setUser(existingUser);
+
+        // Update the cart with full product details
+        for (ProductCart productCart : cart) {
+            DbProduct fullProduct = productRepository.findBySku(productCart.getProduct().getSku());
+            if (fullProduct == null) {
+                throw new Exception("Product with SKU " + productCart.getProduct().getSku() + " not found");
+            }
+            productCart.setProduct(fullProduct); // Set the full product details
+            productCart.setOrder(order);        // Associate the cart with the order
+        }
+
         order.setProductCarts(cart);
 
-        dbService.insertOrder(order);
+        orderRepository.save(order);
         System.out.println("Order created successfully with order number: " + order.getOrderNumber());
 
         return order;
@@ -88,8 +107,8 @@ public class OrderService {
             DbProduct toBeOrderedProduct = entry.getKey();
             Double toBeOrderedQuantity = entry.getValue();
 
-            DbProduct existingProduct = dbService.getProductBySKU(toBeOrderedProduct.getSku());
 
+            DbProduct existingProduct = productRepository.findBySku(toBeOrderedProduct.getSku());
             if (existingProduct == null) {
                 errors.add("Product with Name " + toBeOrderedProduct.getName() + " not found");
                 continue;
@@ -117,6 +136,7 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public List<OrderResponse> getOrdersByEmail(String email) {
         List<Order> orders = orderRepository.findByEmail(email);
         return orders.stream().map(OrderResponse::new).collect(Collectors.toList());
@@ -143,8 +163,8 @@ public class OrderService {
         }
 
 
-        dbService.deleteOrder(order);
-
+        //dbService.deleteOrder(order);
+        orderRepository.delete(order);
     }
 
     public Order updateOrder(String orderNumber, Order updateOrder, User authenticatedUser) throws Exception {

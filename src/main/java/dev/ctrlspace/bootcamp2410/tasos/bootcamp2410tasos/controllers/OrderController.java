@@ -30,19 +30,6 @@ public class OrderController {
         this.userService = userService;
     }
 
-    @GetMapping("/hello")
-    public String hello(){
-        return "Hello World";
-    }
-
-    @GetMapping("/run-simulation")
-    public List<Order> runSimulation() throws Exception {
-
-        eShopSimulationService.run();
-
-
-        return orderService.getAllOrders();
-    }
 
     @GetMapping("/orders")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -64,11 +51,12 @@ public class OrderController {
 
     @GetMapping("/orders/{orderNumber}")
     public Order getOrderById(@PathVariable String orderNumber){
+
         return orderService.getOrderByOrderNumber(orderNumber);
     }
 
 
-    @PostMapping("/orders")
+    @PostMapping("/orders/user")
     public Order createOrder(@RequestBody Order order) throws Exception {
 
 

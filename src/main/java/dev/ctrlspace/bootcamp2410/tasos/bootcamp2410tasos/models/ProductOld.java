@@ -2,7 +2,7 @@ package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models;
 
 import java.util.Objects;
 
-public class Product {
+public class ProductOld {
 
     private String sku;
 
@@ -11,7 +11,7 @@ public class Product {
     private Double price;
     private Double stockQuantity;
 
-    public Product() {
+    public ProductOld() {
         sku = null;
         name = null;
         description = null;
@@ -19,7 +19,7 @@ public class Product {
         stockQuantity = 0D;
     }
 
-    public Product(String sku, String name, String description, Double price, Double stockQuantity) {
+    public ProductOld(String sku, String name, String description, Double price, Double stockQuantity) {
         this.sku = sku;
         this.name = name;
         this.description = description;
@@ -81,7 +81,7 @@ public class Product {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Product product = (Product) o;
+        ProductOld product = (ProductOld) o;
         return Objects.equals(sku, product.sku) && Objects.equals(name, product.name) && Objects.equals(description, product.description) && Objects.equals(price, product.price) && Objects.equals(stockQuantity, product.stockQuantity);
     }
 
