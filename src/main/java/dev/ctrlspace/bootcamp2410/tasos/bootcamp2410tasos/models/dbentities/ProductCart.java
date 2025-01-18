@@ -19,7 +19,7 @@ public class ProductCart {
     private Order order;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "product_id", referencedColumnName = "id", nullable = false)
     private DbProduct product;
 
     @Basic

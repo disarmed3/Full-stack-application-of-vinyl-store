@@ -31,8 +31,7 @@ export default function HomePage() {
                 // Fetch only the logged-in user's orders
                 const userEmail = localStorage.getItem("userEmail");
                 response = await axios.get(`http://localhost:8080/orders/user/${userEmail}`, { headers });
-                const userOrders = response.data[0]; // Access the inner array
-                setOrders([ userOrders]); 
+                setOrders(response.data)
             }
         } catch (error) {
             console.error("Error fetching orders:", error);

@@ -33,7 +33,7 @@ public class OrderController {
 
     @GetMapping("/orders")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public List<Order> getAllOrders(Authentication authentication){
+    public List<Order> getAllOrders(){
 
         return orderService.getAllOrders();
     }
@@ -68,6 +68,12 @@ public class OrderController {
 
     }
 
+    @DeleteMapping("/orders/{orderNumber}")
+    public void deleteOrder(@PathVariable String orderNumber) throws Exception {
+
+        orderService.deleteOrder(orderNumber);
+    }
+
 //    @PutMapping("/orders/{orderNumber}")
 //    public Order updateOrder(@PathVariable String orderNumber, @RequestBody Order order, @RequestHeader("email") String email, @RequestHeader("password") String pass) throws Exception {
 //
@@ -90,13 +96,7 @@ public class OrderController {
 //        return orderService.updateOrder(orderNumber, order, authenticatedUser);
 //    }
 
-//    @DeleteMapping("/orders/{orderNumber}")
-//    public void deleteOrder(@PathVariable String orderNumber, @RequestHeader("email") String email, @RequestHeader("password") String pass) throws Exception {
-//
-//        User authenticatedUser = userService.login(email, pass);
-//
-//        orderService.deleteOrder(orderNumber ,authenticatedUser);
-//    }
+
 
 
 

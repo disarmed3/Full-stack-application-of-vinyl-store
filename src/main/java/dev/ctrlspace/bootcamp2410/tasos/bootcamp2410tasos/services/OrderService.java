@@ -6,6 +6,7 @@ import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.DbPr
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.ProductCart;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.User;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.OrderRepository;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.ProductCartRepository;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.ProductRepository;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,19 +25,21 @@ public class OrderService {
     private UserService userService;
     private UserRepository userRepository;
     private ProductService productService;
+    private ProductCartRepository productCartRepository;
 
     private List<String> validStatuses = Arrays.asList("NEW", "IN_PROGRESS", "COMPLETED", "CANCELLED");
     private List<String> updatableStatuses = Arrays.asList("NEW", "IN_PROGRESS");
 
     public OrderService(DBService dbService,
                         UserService userService,
-                        ProductService productService, OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository) {
+                        ProductService productService, OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository, ProductCartRepository productCartRepository) {
         this.dbService = dbService;
         this.userService = userService;
         this.productService = productService;
         this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.productCartRepository = productCartRepository;
     }
 
 
@@ -75,7 +78,8 @@ public class OrderService {
 
         order.setProductCarts(cart);
 
-        orderRepository.save(order);
+        order= orderRepository.save(order);
+        productCartRepository.saveAll(order.getProductCarts());
         System.out.println("Order created successfully with order number: " + order.getOrderNumber());
 
         return order;
@@ -150,7 +154,7 @@ public class OrderService {
                 .orElse(null);
     }
 
-    public void deleteOrder(String orderNumber, User authenticatedUser) throws Exception {
+    public void deleteOrder(String orderNumber) throws Exception {
 
         Order order = getOrderByOrderNumber(orderNumber);
 
@@ -158,13 +162,9 @@ public class OrderService {
             throw new Exception("Order not found");
         }
 
-        if (!authenticatedUser.getEmail().equals(order.getUser().getEmail())) {
-            throw new Exception("You are not authorized to delete this order");
-        }
-
-
-        //dbService.deleteOrder(order);
+        productCartRepository.deleteAll(order.getProductCarts());
         orderRepository.delete(order);
+
     }
 
     public Order updateOrder(String orderNumber, Order updateOrder, User authenticatedUser) throws Exception {
