@@ -1,0 +1,31 @@
+.orderDetailsContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px; /* Slightly increased gap for better spacing */
+    padding: 24px;
+}
+
+.orderDetailsSection,
+.orderProductsSection,
+.orderStatusSection {
+    flex: 1; /* Equal width for all sections */
+    padding: 24px; /* Increased padding for larger boxes */
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    height: 120%; /* Makes the boxes 20% larger vertically */
+    box-sizing: border-box; /* Ensures padding doesn’t affect dimensions */
+}
+
+.orderDetailsSection h2,
+.orderProductsSection h2,
+.orderStatusSection h2 {
+    text-align: center; /* Align titles horizontally in the center */
+    margin-bottom: 16px; /* Adds spacing below the titles */
+}
+
+.orderStatusSection select {
+    padding: 12px; /* Slightly larger padding for better usability */
+    font-size: 16px;
+    width: 100%; /* Full-width dropdown for consistent styling */
+}

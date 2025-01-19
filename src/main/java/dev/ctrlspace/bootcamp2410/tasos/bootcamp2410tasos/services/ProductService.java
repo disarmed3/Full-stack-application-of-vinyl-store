@@ -58,13 +58,6 @@ public class ProductService {
 
     }
 
-    public void returnProductsToStock(List<ProductCart> cart) {
-        for (ProductCart productCart : cart) {
-            DbProduct stockProduct = getProductBySku(productCart.getProduct().getSku());
-            stockProduct.setStock(stockProduct.getStock() + productCart.getQuantity());
-        }
-    }
-
 
     public void removeProductsFromStock(List<ProductCart> cart) {
         for (ProductCart productCart : cart) {

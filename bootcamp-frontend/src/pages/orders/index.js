@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import BootcampHeader from "@/components/header/header";
-import { useRouter } from "next/router"; // Adjusted to use Next.js router
+import { useRouter } from "next/router"; // Use Next.js router for navigation
 
 export default function HomePage() {
     const [orders, setOrders] = useState([]);
@@ -31,7 +31,7 @@ export default function HomePage() {
                 // Fetch only the logged-in user's orders
                 const userEmail = localStorage.getItem("userEmail");
                 response = await axios.get(`http://localhost:8080/orders/user/${userEmail}`, { headers });
-                setOrders(response.data)
+                setOrders(response.data);
             }
         } catch (error) {
             console.error("Error fetching orders:", error);
@@ -43,19 +43,31 @@ export default function HomePage() {
         fetchOrders();
     }, []);
 
+    const handleOrderClick = (orderNumber) => {
+        router.push(`/orders/${orderNumber}`); // Navigate to the order detail page
+    };
+
     return (
         <div className="page-container">
             <BootcampHeader />
             <main className="main-content">
                 <h1>Orders</h1>
                 <div className="product-grid">
-                    {console.log("Orders:", orders)}
                     {userRole === "ROLE_ADMIN" ? (
                         // Render UI for ROLE_ADMIN
                         orders.map((order) => (
                             <div key={order.orderNumber} className="product-card">
                                 <h3>{order.orderStatus}</h3>
-                                <p>Order Number: {order.orderNumber}</p>
+                                <p>
+                                    Order Number:{" "}
+                                    <a
+                                        href="#"
+                                        onClick={() => handleOrderClick(order.orderNumber)}
+                                        className="active-link"
+                                    >
+                                        {order.orderNumber}
+                                    </a>
+                                </p>
                                 <p>Create At: {order.createAt}</p>
                                 <p>Update At: {order.updateAt}</p>
                                 <p>User: {order.user?.name || "N/A"} ({order.user?.email || "N/A"})</p>
