@@ -3,6 +3,7 @@ package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.DbProduct;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.ProductCart;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.ProductRepository;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.ProductCart;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,12 +11,12 @@ import java.util.List;
 @Service
 public class ProductService {
 
-    private final DBService dbService;
+
     private final ProductRepository productRepository;
 
     public ProductService(DBService dbService, ProductRepository productRepository) {
 
-        this.dbService = dbService;
+
         this.productRepository = productRepository;
     }
 
@@ -57,15 +58,15 @@ public class ProductService {
 
     }
 
-    public void returnProductsToStock(List<dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.ProductCart> cart) {
-        for (dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.ProductCart productCart : cart) {
+    public void returnProductsToStock(List<ProductCart> cart) {
+        for (ProductCart productCart : cart) {
             DbProduct stockProduct = getProductBySku(productCart.getProduct().getSku());
             stockProduct.setStock(stockProduct.getStock() + productCart.getQuantity());
         }
     }
 
 
-    public void removeProductsFromStock(List<dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.ProductCart> cart) {
+    public void removeProductsFromStock(List<ProductCart> cart) {
         for (ProductCart productCart : cart) {
             DbProduct stockProduct = getProductBySku(productCart.getProduct().getSku());
             stockProduct.setStock(stockProduct.getStock() - productCart.getQuantity());

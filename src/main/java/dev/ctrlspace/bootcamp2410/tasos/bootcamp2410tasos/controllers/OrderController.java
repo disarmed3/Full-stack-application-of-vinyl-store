@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class OrderController {
@@ -50,7 +51,7 @@ public class OrderController {
     }
 
     @GetMapping("/orders/{orderNumber}")
-    public Order getOrderById(@PathVariable String orderNumber){
+    public Order getOrderById(@PathVariable String orderNumber) throws Exception {
 
         return orderService.getOrderByOrderNumber(orderNumber);
     }
@@ -74,29 +75,12 @@ public class OrderController {
         orderService.deleteOrder(orderNumber);
     }
 
-//    @PutMapping("/orders/{orderNumber}")
-//    public Order updateOrder(@PathVariable String orderNumber, @RequestBody Order order, @RequestHeader("email") String email, @RequestHeader("password") String pass) throws Exception {
-//
-//        User authenticatedUser = userService.login(email, pass);
-//
-//        Order existingOrder = orderService.getOrderByOrderNumber(orderNumber);
-//
-//        if (order.getOrderNumber() != null ) {
-//            throw new Exception("Order Number is not allowed in the request body...");
-//        }
-//
-//        if (existingOrder == null) {
-//            throw new Exception("Order not found");
-//        }
-//
-//        if (!authenticatedUser.getEmail().equals(existingOrder.getUser().getEmail())) {
-//            throw new Exception("You are not authorized to update this order");
-//        }
-//
-//        return orderService.updateOrder(orderNumber, order, authenticatedUser);
-//    }
+    @PutMapping("/orders/{orderNumber}")
+    public Order updateOrderStatus(@PathVariable String orderNumber, @RequestBody Map<String, String> requestBody) throws Exception {
+        String newStatus = requestBody.get("orderStatus");
 
-
+        return orderService.updateOrderStatus(orderNumber, newStatus);
+    }
 
 
 

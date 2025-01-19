@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final ProductRepository productRepository;
-    private DBService dbService;
     private OrderRepository orderRepository;
     private UserService userService;
     private UserRepository userRepository;
@@ -28,12 +27,11 @@ public class OrderService {
     private ProductCartRepository productCartRepository;
 
     private List<String> validStatuses = Arrays.asList("NEW", "IN_PROGRESS", "COMPLETED", "CANCELLED");
-    private List<String> updatableStatuses = Arrays.asList("NEW", "IN_PROGRESS");
 
-    public OrderService(DBService dbService,
-                        UserService userService,
+
+    public OrderService(UserService userService,
                         ProductService productService, OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository, ProductCartRepository productCartRepository) {
-        this.dbService = dbService;
+
         this.userService = userService;
         this.productService = productService;
         this.orderRepository = orderRepository;
@@ -87,6 +85,7 @@ public class OrderService {
 
     private static Map<DbProduct, Double> getUniqueProducts(List<ProductCart> cart) {
         Map<DbProduct, Double> uniqueProducts = new HashMap<>();
+
         for (ProductCart productCart : cart) {
             if (!uniqueProducts.containsKey(productCart.getProduct())) {
                 uniqueProducts.put(productCart.getProduct(), productCart.getQuantity());
@@ -97,14 +96,7 @@ public class OrderService {
         return uniqueProducts;
     }
 
-    /**
-     * Gets a Map of products and their quantities and validates if the products are available in stock
-     *
-     * @param uniqueProducts
-     * @throws Exception
-     */
-
-    private void validateProductAvailable(Map<DbProduct, Double> uniqueProducts) throws Exception {
+  private void validateProductAvailable(Map<DbProduct, Double> uniqueProducts) throws Exception {
         List<String> errors = new ArrayList<>();
         for (Map.Entry<DbProduct, Double> entry : uniqueProducts.entrySet()) {
 
@@ -147,12 +139,11 @@ public class OrderService {
     }
 
 
-    public Order getOrderByOrderNumber(String orderNumber) {
-        return orderRepository.findAll().stream()
-                .filter(order -> order.getOrderNumber().equals(orderNumber))
-                .findFirst()
-                .orElse(null);
+    public Order getOrderByOrderNumber(String orderNumber) throws Exception {
+        return orderRepository.findByOrderNumber(orderNumber)
+                .orElseThrow(() -> new Exception("Order not found with orderNumber: " + orderNumber));
     }
+
 
     public void deleteOrder(String orderNumber) throws Exception {
 
@@ -167,39 +158,24 @@ public class OrderService {
 
     }
 
-    public Order updateOrder(String orderNumber, Order updateOrder, User authenticatedUser) throws Exception {
-
+    public Order updateOrderStatus(String orderNumber, String newStatus) throws Exception {
+        // Fetch the existing order by orderNumber
         Order existingOrder = getOrderByOrderNumber(orderNumber);
 
-        if (!validStatuses.contains(updateOrder.getOrderStatus())) {
-            throw new Exception("Invalid order status");
+        // Validate the new order status
+        if (!validStatuses.contains(newStatus)) {
+            throw new Exception("Invalid order status: " + newStatus);
         }
 
-        if(updatableStatuses.contains(updateOrder.getOrderStatus())) {
-            existingOrder.setOrderStatus(updateOrder.getOrderStatus());
-        }
+        // Update order status and timestamp
+        existingOrder.setOrderStatus(newStatus);
+        existingOrder.setUpdateAt(Instant.now());
 
-        User newUser = userService.getByEmail(updateOrder.getUser().getEmail());
-        existingOrder.setUser(newUser);
-
-
-        Map<DbProduct, Double> uniqueProducts = getUniqueProducts(updateOrder.getProductCarts());
-
-        validateProductAvailable(uniqueProducts);
-
-        productService.returnProductsToStock(existingOrder.getProductCarts());
-        productService.removeProductsFromStock(updateOrder.getProductCarts());
-
-        List<ProductCart> cart = updateOrder.getProductCarts();
-        for (ProductCart productCart : updateOrder.getProductCarts()) {
-            DbProduct existingProduct = dbService.getProductBySKU(productCart.getProduct().getSku());
-            productCart.setProduct(existingProduct);
-        }
-
-        existingOrder.setProductCarts(updateOrder.getProductCarts());
-
-        return existingOrder;
+        // Save the updated order
+        return orderRepository.save(existingOrder);
     }
+
+
 
 
 }
