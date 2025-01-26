@@ -61,11 +61,21 @@ export default function ProductPage() {
         const storedCartCount = localStorage.getItem("cartCount");
         const currentCount = storedCartCount ? parseInt(storedCartCount, 10) : 0;
 
+        // Check how many pieces of this product are already in the cart
+        const productInCart = storedCart.filter((item) => item.sku === product.sku);
+        const totalQuantityInCart = productInCart.length;
+
+        if (totalQuantityInCart >= product.stock) {
+            alert("You cannot add more pieces of this product to the cart than are available in stock.");
+            return; // Stop further execution if the stock limit is reached
+        }
+
         const updatedCount = currentCount + 1; // Increment the cart count
         localStorage.setItem("cartCount", updatedCount); // Store the updated count in localStorage
 
         const newItem = {
             name: product.name,
+            description: product.description, // Include description
             price: product.price,
             sku: product.sku,
         };
@@ -73,7 +83,7 @@ export default function ProductPage() {
         const updatedCart = [...storedCart, newItem];
         localStorage.setItem("cartItems", JSON.stringify(updatedCart)); // Store updated cart in localStorage
 
-        // Update cart count in the header (if shared via a state management solution)
+        // Update cart count in the header
         const headerCartCount = document.querySelector(".cart-count");
         if (headerCartCount) {
             headerCartCount.textContent = `(${updatedCount})`;

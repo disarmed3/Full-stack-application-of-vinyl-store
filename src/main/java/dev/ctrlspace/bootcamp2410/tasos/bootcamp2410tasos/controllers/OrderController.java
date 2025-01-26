@@ -58,6 +58,7 @@ public class OrderController {
 
 
     @PostMapping("/orders/user")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Order createOrder(@RequestBody Order order) throws Exception {
 
 
