@@ -29,3 +29,22 @@
     font-size: 16px;
     width: 100%; /* Full-width dropdown for consistent styling */
 }
+/* OrderDetailPage.module.css */
+.deleteButtonContainer {
+    margin-top: 20px;
+}
+
+.deleteButton {
+    background-color: #ff4d4d; /* Red color for delete */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.deleteButton:hover {
+    background-color: #ff1a1a; /* Darker red on hover */
+}
+

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import BootcampHeader from "@/components/header/header";
 
+
+
 export default function ShoppingCartPage() {
     const [cartItems, setCartItems] = useState([]);
     const [cartCount, setCartCount] = useState(0);

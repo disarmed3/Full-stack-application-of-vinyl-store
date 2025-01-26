@@ -59,6 +59,31 @@ export default function OrderDetailPage() {
         updateOrderStatus(newStatus);
     };
 
+    const handleDeleteOrder = async () => {
+        try {
+            const loginToken = localStorage.getItem("loginToken");
+            const userRole = localStorage.getItem("userRole");
+
+            if (!loginToken || userRole !== "ROLE_ADMIN") {
+                alert("You must be an admin to delete this order.");
+                return;
+            }
+
+            const authHeader = `Basic ${loginToken}`;
+            const headers = { Authorization: authHeader };
+
+            const response = await axios.delete(`http://localhost:8080/orders/${orderNumber}`, { headers });
+
+            if (response.status === 200) {
+                alert("Order deleted successfully!");
+                router.push("/orders"); // Navigate back to orders list
+            }
+        } catch (error) {
+            console.error("Error deleting order:", error);
+            alert("Failed to delete order.");
+        }
+    };
+
     useEffect(() => {
         if (orderNumber) {
             fetchOrder();
@@ -120,6 +145,15 @@ export default function OrderDetailPage() {
                         </select>
                     </div>
                 </div>
+
+                {/* Delete Order Button (Only for Admins) */}
+                {localStorage.getItem("userRole") === "ROLE_ADMIN" && (
+                    <div className={styles.deleteButtonContainer}>
+                        <button className={styles.deleteButton} onClick={handleDeleteOrder}>
+                            Delete Order
+                        </button>
+                    </div>
+                )}
             </main>
             <footer className="footer">&copy; 2025 The Lotus Team. All rights reserved.</footer>
         </div>
