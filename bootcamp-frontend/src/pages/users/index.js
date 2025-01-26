@@ -69,7 +69,7 @@ export default function HomePage() {
                 </div>
             </main>
             <footer className="footer">
-                &copy; 2024 The Lotus Team. All rights reserved.
+                &copy; 2025 The Lotus Team. All rights reserved.
             </footer>
         </div>
     );

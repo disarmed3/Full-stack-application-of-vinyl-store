@@ -20,7 +20,6 @@ export default function ProductPage() {
     const [userRole, setUserRole] = useState(null); // State for user role
 
     useEffect(() => {
-        // Retrieve user role from localStorage
         const storedUserRole = localStorage.getItem('userRole');
         setUserRole(storedUserRole);
 
@@ -47,9 +46,7 @@ export default function ProductPage() {
             }
 
             const authHeader = `Basic ${loginToken}`;
-            const headers = {
-                Authorization: authHeader,
-            };
+            const headers = { Authorization: authHeader };
             const response = await axios.get(`http://localhost:8080/products/${sku}`, { headers });
             setProduct(response.data);
             setEditedProduct(response.data);
@@ -58,6 +55,34 @@ export default function ProductPage() {
             console.error("Error fetching product:", error);
         }
     };
+
+    const handleAddToCart = () => {
+        const storedCart = JSON.parse(localStorage.getItem("cartItems")) || [];
+        const storedCartCount = localStorage.getItem("cartCount");
+        const currentCount = storedCartCount ? parseInt(storedCartCount, 10) : 0;
+
+        const updatedCount = currentCount + 1; // Increment the cart count
+        localStorage.setItem("cartCount", updatedCount); // Store the updated count in localStorage
+
+        const newItem = {
+            name: product.name,
+            price: product.price,
+            sku: product.sku,
+        };
+
+        const updatedCart = [...storedCart, newItem];
+        localStorage.setItem("cartItems", JSON.stringify(updatedCart)); // Store updated cart in localStorage
+
+        // Update cart count in the header (if shared via a state management solution)
+        const headerCartCount = document.querySelector(".cart-count");
+        if (headerCartCount) {
+            headerCartCount.textContent = `(${updatedCount})`;
+        }
+
+        alert("Product added to cart!");
+    };
+
+
 
     const handleEdit = () => {
         if (!product && !isNew) return;
@@ -75,9 +100,7 @@ export default function ProductPage() {
                 }
 
                 const authHeader = `Basic ${loginToken}`;
-                const headers = {
-                    Authorization: authHeader
-                };
+                const headers = { Authorization: authHeader };
 
                 await axios.delete(`http://localhost:8080/products/${product.sku}`, { headers });
 
@@ -158,7 +181,6 @@ export default function ProductPage() {
         <div className="page-container">
             <BootcampHeader />
 
-            {/* Back Button under Logo */}
             <div className="back-button-container">
                 <button
                     className="back-button"
@@ -216,12 +238,19 @@ export default function ProductPage() {
                                         <p>{product.description}</p>
                                         <p>Stock: {product.stock}</p>
                                         <p>Price: ${product.price}</p>
-                                        {userRole === 'ROLE_ADMIN' && ( // Conditionally render buttons
-                                            <div className="button-container">
-                                                <button onClick={handleDelete} className="delete-button">Delete</button>
-                                                <button onClick={handleEdit}>Edit</button>
-                                            </div>
-                                        )}
+                                        <div className="button-container">
+                                            <button onClick={handleAddToCart} className="add-to-cart-button">
+                                                Add to Cart
+                                            </button>
+                                            {userRole === 'ROLE_ADMIN' && (
+                                                <>
+                                                    <button onClick={handleDelete} className="delete-button">
+                                                        Delete
+                                                    </button>
+                                                    <button onClick={handleEdit}>Edit</button>
+                                                </>
+                                            )}
+                                        </div>
                                     </>
                                 )}
                             </>
@@ -232,7 +261,7 @@ export default function ProductPage() {
                 )}
             </main>
             <footer className="footer">
-                &copy; 2024 Your Company. All rights reserved.
+                &copy; 2025 Your Company. All rights reserved.
             </footer>
         </div>
     );
