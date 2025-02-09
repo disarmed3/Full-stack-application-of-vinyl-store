@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @EnableMethodSecurity(
@@ -47,10 +48,11 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authz) ->
                         authz
+                                .requestMatchers("/users/register").permitAll()
                                 .requestMatchers("/users/**").hasAnyRole("ADMIN", "USER") // Users endpoint restricted by roles
                                 .requestMatchers("/orders/user/**").hasRole("USER") // Users can access their own orders
                                 .requestMatchers("/orders/**").hasRole("ADMIN") // Admins can access all orders
-                                .requestMatchers("/products/**").authenticated() // Requires login but no role restrictions
+                                .requestMatchers("/products/**").hasAnyRole("ADMIN", "USER") // Users endpoint restricted by roles
                                 .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults());

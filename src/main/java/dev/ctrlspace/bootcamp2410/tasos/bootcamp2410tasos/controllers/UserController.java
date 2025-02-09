@@ -6,6 +6,10 @@ import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services.OrderService;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
@@ -14,65 +18,91 @@ import java.util.List;
 @RestController
 public class UserController {
 
-    private UserService userService;
-
+    private final UserService userService;
+    private final OrderService orderService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, OrderService orderService) {
         this.userService = userService;
-
+        this.orderService = orderService;
     }
-    @GetMapping("/users")
-    @ResponseStatus(HttpStatus.OK)
-    public List<User> getAllUsers(){
 
-        return userService.getUsers();
+    @GetMapping("/users")
+    public List<User> getAllUsers(Authentication authentication) {
+        User authenticatedUser = (User) authentication.getPrincipal();
+
+        if (authenticatedUser.getRole().equals("ROLE_ADMIN")) {
+            return userService.getUsers();
+        } else if (authenticatedUser.getRole().equals("ROLE_USER")) {
+            return List.of(userService.getByEmail(authenticatedUser.getEmail()));
+        } else {
+            throw new SecurityException("Unauthorized access");
+        }
     }
 
     @GetMapping("/users/{email}")
-    @ResponseStatus(HttpStatus.OK)
-    public User getUserByEmail(@PathVariable String email) throws Exception {
-
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public User getUserByEmail(@PathVariable String email) {
         return userService.getByEmail(email);
-
     }
 
     @PostMapping("/login")
     public LoginResponse login(Authentication authentication) throws Exception {
-        String email = ((User) authentication.getPrincipal()).getEmail();
-        String password = ((User) authentication.getPrincipal()).getPassword(); // Assuming password is available via authentication
-
-        return userService.login(email, password); // Call the login method that returns LoginResponse
+        User user = (User) authentication.getPrincipal();
+        return userService.login(user.getEmail(), user.getPassword());
     }
 
-    @PostMapping("/users")
-    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/users/register")
     public void createUser(@RequestBody User user) throws Exception {
-
-        if (user.getName().isEmpty() || user.getPassword().isEmpty() || user.getEmail().isEmpty() ){
-            throw new Exception("Essential data is blank");
-        }
-
+        validateUserFields(user);
         userService.addUser(user);
     }
 
-//    @PutMapping("/users")
-//    @ResponseStatus(HttpStatus.ACCEPTED)
-//    public void updateUser(@RequestBody User user, @RequestHeader("email") String email, @RequestHeader("password") String password) throws Exception {
-//
-//        User authenticatedUser = userService.login(email, password);
-//
-//        userService.updateUser(user, authenticatedUser);
-//
-//    }
-//
-//    @DeleteMapping("/users/{email}")
-//    @ResponseStatus(HttpStatus.ACCEPTED)
-//    public void deleteUser(@PathVariable String email, @RequestHeader("password") String password) throws Exception {
-//
-//
-//        User authenticatedUser = userService.login(email, password);
-//
-//        userService.deleteUser(authenticatedUser);
-//    }
+    @PutMapping("/users")
+    public User updateUser(@RequestBody User updatedUser, Authentication authentication) throws Exception {
+        User authenticatedUser = (User) authentication.getPrincipal();
+        if ("ROLE_USER".equals(authenticatedUser.getRole()) &&
+                !authenticatedUser.getEmail().equals(updatedUser.getEmail())) {
+            throw new AccessDeniedException("Users can only update their own information.");
+        }
+        validateUserFields(updatedUser);
+        updatedUser.setId(authenticatedUser.getId());
+
+        userService.updateUser(updatedUser);
+        return userService.getByEmail(updatedUser.getEmail());
+    }
+
+    @DeleteMapping("/users/{email}")
+    public void deleteUser(@PathVariable String email, Authentication authentication) {
+        User authenticatedUser = (User) authentication.getPrincipal();
+
+        // Admins can delete any user, users can only delete themselves
+        if (!authenticatedUser.getRole().equals("ROLE_ADMIN") && !authenticatedUser.getEmail().equals(email)) {
+            throw new AccessDeniedException("You are not authorized to delete this user.");
+        }
+
+        User userToDelete = userService.getByEmail(email);
+        if (userToDelete == null) {
+            throw new IllegalArgumentException("User not found.");
+        }
+
+        orderService.deleteOrdersByUserId(userToDelete.getId());
+        userService.deleteUser(userToDelete);
+
+
+    }
+
+
+    /**
+     * Private helper method to validate that all user fields are provided.
+     */
+    private void validateUserFields(User user) throws Exception {
+        if (user.getName() == null || user.getName().trim().isEmpty() ||
+                user.getPassword() == null || user.getPassword().trim().isEmpty() ||
+                user.getEmail() == null || user.getEmail().trim().isEmpty() ||
+                user.getAddress() == null || user.getAddress().trim().isEmpty() ||
+                user.getPhoneNumber() == null || user.getPhoneNumber().trim().isEmpty()) {
+            throw new Exception("All fields (name, password, email, address, phone number) must be provided.");
+        }
+    }
 }

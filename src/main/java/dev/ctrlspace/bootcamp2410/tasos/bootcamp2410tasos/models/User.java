@@ -65,10 +65,11 @@ public class User implements UserDetails {
         this.email = email;
     }
 
-    // Getter for role
     public String getRole() {return role; }
 
-   public String getPassword() {
+    public void setRole(String role) { this.role = role;}
+
+    public String getPassword() {
         return password;
     }
 

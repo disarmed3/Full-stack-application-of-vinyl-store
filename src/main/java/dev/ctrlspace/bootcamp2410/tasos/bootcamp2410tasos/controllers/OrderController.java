@@ -4,9 +4,7 @@ package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.controllers;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.DTO.OrderResponse;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.User;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.Order;
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services.EShopSimulationService;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services.OrderService;
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services.UserService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -18,17 +16,14 @@ import java.util.Map;
 @RestController
 public class OrderController {
 
-    private UserService userService;
-    private EShopSimulationService eShopSimulationService;
+
     private OrderService orderService;
 
 
-    public OrderController(OrderService orderService,
-                           UserService userService,
-                           EShopSimulationService eShopSimulationService) {
-        this.eShopSimulationService = eShopSimulationService;
+    public OrderController(OrderService orderService) {
+
         this.orderService = orderService;
-        this.userService = userService;
+
     }
 
 
@@ -51,6 +46,7 @@ public class OrderController {
     }
 
     @GetMapping("/orders/{orderNumber}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Order getOrderById(@PathVariable String orderNumber) throws Exception {
 
         return orderService.getOrderByOrderNumber(orderNumber);
@@ -71,12 +67,14 @@ public class OrderController {
     }
 
     @DeleteMapping("/orders/{orderNumber}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deleteOrder(@PathVariable String orderNumber) throws Exception {
 
         orderService.deleteOrder(orderNumber);
     }
 
     @PutMapping("/orders/{orderNumber}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Order updateOrderStatus(@PathVariable String orderNumber, @RequestBody Map<String, String> requestBody) throws Exception {
         String newStatus = requestBody.get("orderStatus");
 

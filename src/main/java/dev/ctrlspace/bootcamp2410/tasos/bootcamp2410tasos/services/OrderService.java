@@ -9,6 +9,8 @@ import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.OrderRepo
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.ProductCartRepository;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.ProductRepository;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.UserRepository;
+import jakarta.persistence.EntityManager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +27,33 @@ public class OrderService {
     private UserRepository userRepository;
     private ProductService productService;
     private ProductCartRepository productCartRepository;
-
     private List<String> validStatuses = Arrays.asList("NEW", "IN_PROGRESS", "COMPLETED", "CANCELLED");
 
+    @Autowired
+    private EntityManager entityManager;
+
+    @Transactional
+    public void deleteOrdersByUserId(Long userId) {
+        // First, get all order IDs for this user
+        List<Long> orderIds = entityManager.createQuery(
+                        "SELECT o.id FROM Order o WHERE o.user.id = :userId", Long.class)
+                .setParameter("userId", userId)
+                .getResultList();
+
+        // Delete product_cart entries first
+        for (Long orderId : orderIds) {
+            entityManager.createQuery(
+                            "DELETE FROM ProductCart pc WHERE pc.order.id = :orderId")
+                    .setParameter("orderId", orderId)
+                    .executeUpdate();
+        }
+
+        // Then delete the orders
+        entityManager.createQuery(
+                        "DELETE FROM Order o WHERE o.user.id = :userId")
+                .setParameter("userId", userId)
+                .executeUpdate();
+    }
 
     public OrderService(UserService userService,
                         ProductService productService, OrderRepository orderRepository, UserRepository userRepository, ProductRepository productRepository, ProductCartRepository productCartRepository) {

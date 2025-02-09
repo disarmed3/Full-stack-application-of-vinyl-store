@@ -3,22 +3,21 @@ package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.DTO.LoginResponse;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.User;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import io.micrometer.common.util.StringUtils;
+
 import java.util.List;
 
 @Service
 public class UserService implements UserDetailsService {
 
-    private DBService dbService;
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    public UserService(DBService dbService, UserRepository userRepository) {
-
-        this.dbService = dbService;
+    @Autowired
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -26,66 +25,55 @@ public class UserService implements UserDetailsService {
         return userRepository.findAll();
     }
 
-    public User getByEmail(String email)  {
-
+    public User getByEmail(String email) {
         return userRepository.findByEmail(email);
-
     }
 
-   public void addUser(User user) throws Exception {
-        if (user.getId() != null) {
-            throw  new Exception("Id must not be given");
+    public void addUser(User user) throws Exception {
+        if (user.getId() != null || user.getRole() != null) {
+            throw new Exception("ID and Role must not be provided.");
         }
-        User existingUser = userRepository.findByEmail(user.getEmail());
-        if (existingUser != null) {
-            throw new Exception("Email already exists");
+        // Convert email to lowercase
+        user.setEmail(user.getEmail().toLowerCase());
+
+        // Check if email already exists
+        if (userRepository.findByEmail(user.getEmail()) != null) {
+            throw new Exception("Email already exists.");
         }
+
+        user.setRole("ROLE_USER");
         userRepository.save(user);
     }
 
     public LoginResponse login(String email, String password) throws Exception {
-        // Authenticate user with provided email and password
         User user = userRepository.loginUser(email, password);
-
         if (user == null) {
             throw new Exception("User not found");
         }
-
-        // Return a LoginResponse with the email and role
         return new LoginResponse(user.getEmail(), user.getRole());
     }
 
-    public void updateUser(User user, User authenticatedUser) throws Exception {
-
-
-        if (StringUtils.isNotBlank(user.getEmail())) {
-            authenticatedUser.setEmail(user.getEmail());
+    public void updateUser(User updatedUser) {
+        User existingUser = userRepository.findById(updatedUser.getId()).orElse(null);
+        if (existingUser == null) {
+            throw new IllegalArgumentException("User not found");
         }
-        if (StringUtils.isNotBlank(user.getPassword())) {
-            authenticatedUser.setPassword(user.getPassword());
-        }
-        if (StringUtils.isNotBlank(user.getName())) {
-            authenticatedUser.setName(user.getName());
-        }
-        if (StringUtils.isNotBlank(user.getAddress())) {
-            authenticatedUser.setAddress(user.getAddress());
-        }
-        if (StringUtils.isNotBlank(user.getPhoneNumber())) {
-            authenticatedUser.setPhoneNumber(user.getPhoneNumber());
-        }
-
-        userRepository.save(authenticatedUser);
-
+        existingUser.setName(updatedUser.getName());
+        existingUser.setPassword(updatedUser.getPassword());
+        existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
+        existingUser.setAddress(updatedUser.getAddress());
+        userRepository.save(existingUser);
     }
 
     public void deleteUser(User authenticatedUser) {
-
         userRepository.delete(authenticatedUser);
-                }
-
+    }
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = getByEmail(email);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(username.toLowerCase());
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with email: " + username);
+        }
         return user;
     }
 }
