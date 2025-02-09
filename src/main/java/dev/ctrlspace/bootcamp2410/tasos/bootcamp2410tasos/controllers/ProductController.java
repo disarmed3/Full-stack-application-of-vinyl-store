@@ -2,6 +2,7 @@ package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.controllers;
 
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.DbProduct;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services.ProductService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
@@ -21,18 +22,12 @@ public class ProductController {
     }
 
     @PostMapping("/products")
-    public DbProduct createProduct(@RequestBody DbProduct productToAdd, Authentication authentication) throws Exception {
-
-        //check if user is admin
-        if (!isUserAdmin(authentication)){
-            throw new Exception("You are not authorized to add product");
-        }
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public DbProduct createProduct(@RequestBody DbProduct productToAdd) throws Exception {
 
         validateCreateProduct(productToAdd);
 
         return productService.create(productToAdd);
-
-
     }
 
 
@@ -41,22 +36,16 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+
     @GetMapping("/products/{SKU}")
-    public DbProduct getProductBySku(@PathVariable String SKU) throws Exception {
-//        DbProduct product = productService.getProductBySku(SKU);
-//        if (product == null) {
-//            throw new Exception("Product not found with SKU: " + SKU);
-//        }
+    public DbProduct getProductBySku(@PathVariable String SKU) {
+
         return productService.getProductBySku(SKU);
     }
 
     @PutMapping("/products/{SKU}")
-    public void updateProduct(@PathVariable String SKU, @RequestBody DbProduct productToUpdate, Authentication authentication) throws Exception {
-
-        //check if user is admin
-        if (!isUserAdmin(authentication)){
-            throw new Exception("You are not authorized to update a product");
-        }
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public void updateProduct(@PathVariable String SKU, @RequestBody DbProduct productToUpdate) throws Exception {
 
         validateUpdateProduct(SKU, productToUpdate);
 
@@ -64,11 +53,9 @@ public class ProductController {
     }
 
     @DeleteMapping("/products/{SKU}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deleteProduct(@PathVariable String SKU, Authentication authentication) throws Exception {
-        //check if user is admin
-        if (!isUserAdmin(authentication)){
-            throw new Exception("You are not authorized to delete a product");
-        }
+
         productService.deleteProduct(SKU);
     }
 

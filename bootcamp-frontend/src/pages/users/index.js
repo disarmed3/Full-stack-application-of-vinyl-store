@@ -39,7 +39,7 @@ export default function UsersPage() {
     }, []);
 
     const handleDeleteUser = async (email) => {
-        const confirmDelete = window.confirm("Are you sure?");
+        const confirmDelete = window.confirm("This will delete all associated orders too. Are you sure?");
         if (confirmDelete) {
             try {
                 const loginToken = localStorage.getItem("loginToken");
@@ -70,9 +70,17 @@ export default function UsersPage() {
         try {
             const loginToken = localStorage.getItem("loginToken");
             const authHeader = `Basic ${loginToken}`;
-            const headers = { Authorization: authHeader };
-
-            await axios.put("http://localhost:8080/users", editedUser, { headers });
+            const headers = { Authorization: authHeader, 'Content-Type': 'application/json',
+            };
+            // Only include necessary fields
+            const userUpdatePayload = {
+                name: editedUser.name,
+                email: editedUser.email,
+                password: editedUser.password,
+                phoneNumber: editedUser.phoneNumber,
+                address: editedUser.address
+            };
+            await axios.put("http://localhost:8080/users", userUpdatePayload, { headers });
 
             fetchUsers();
             setEditingUser(null);
