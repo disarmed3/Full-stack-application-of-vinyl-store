@@ -3,8 +3,6 @@ package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.controllers;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.DbProduct;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services.ProductService;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,12 +30,14 @@ public class ProductController {
 
 
     @GetMapping("/products")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     public List<DbProduct> getProducts() {
         return productService.getAllProducts();
     }
 
 
     @GetMapping("/products/{SKU}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_USER')")
     public DbProduct getProductBySku(@PathVariable String SKU) {
 
         return productService.getProductBySku(SKU);
@@ -54,7 +54,7 @@ public class ProductController {
 
     @DeleteMapping("/products/{SKU}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public void deleteProduct(@PathVariable String SKU, Authentication authentication) throws Exception {
+    public void deleteProduct(@PathVariable String SKU) throws Exception {
 
         productService.deleteProduct(SKU);
     }
@@ -90,15 +90,15 @@ public class ProductController {
         }
     }
 
-    boolean isUserAdmin(Authentication authentication) {
-
-        for (GrantedAuthority authority : authentication.getAuthorities()) {
-            if (authority.getAuthority().equals("ROLE_ADMIN")) {
-                return true;
-            }
-        }
-        return authentication.getAuthorities().contains("ROLE_ADMIN");
-    }
+//    boolean isUserAdmin(Authentication authentication) {
+//
+//        for (GrantedAuthority authority : authentication.getAuthorities()) {
+//            if (authority.getAuthority().equals("ROLE_ADMIN")) {
+//                return true;
+//            }
+//        }
+//        return authentication.getAuthorities().contains("ROLE_ADMIN");
+//    }
 
 
 

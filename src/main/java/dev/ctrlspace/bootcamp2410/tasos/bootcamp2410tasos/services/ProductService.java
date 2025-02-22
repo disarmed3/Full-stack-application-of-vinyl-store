@@ -46,9 +46,15 @@ public class ProductService {
         return productRepository.save(productToAdd);
 
     }
-    public void updateProduct(DbProduct productToUpdate) {
+    public void updateProduct(DbProduct productToUpdate) throws Exception {
 
         var existingProduct = getProductBySku(productToUpdate.getSku());
+
+        if (existingProduct == null) {
+            throw new Exception("Product not found");
+        }
+
+
         existingProduct.setName(productToUpdate.getName());
         existingProduct.setPrice(productToUpdate.getPrice());
         existingProduct.setStock(productToUpdate.getStock());
@@ -63,6 +69,7 @@ public class ProductService {
         for (ProductCart productCart : cart) {
             DbProduct stockProduct = getProductBySku(productCart.getProduct().getSku());
             stockProduct.setStock(stockProduct.getStock() - productCart.getQuantity());
+
         }
     }
 

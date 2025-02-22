@@ -4,6 +4,8 @@ import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.DTO.LoginResponse;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.User;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -58,6 +60,10 @@ public class UserService implements UserDetailsService {
         if (existingUser == null) {
             throw new IllegalArgumentException("User not found");
         }
+        if (!existingUser.getRole().equals(updatedUser.getRole())) {
+            throw new AccessDeniedException("Role modification is not allowed.");
+        }
+
         existingUser.setName(updatedUser.getName());
         existingUser.setPassword(updatedUser.getPassword());
         existingUser.setPhoneNumber(updatedUser.getPhoneNumber());

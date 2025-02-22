@@ -55,14 +55,14 @@ public class OrderController {
 
     @PostMapping("/orders/user")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public Order createOrder(@RequestBody Order order) throws Exception {
+    public Order createOrder(@RequestBody Order order,Authentication authentication) throws Exception {
 
-
+        User loginUser = (User) authentication.getPrincipal();
         if (order.getOrderNumber() != null ) {
             throw new Exception("Order Number should be null");
         }
 
-        return orderService.createNewOrder(order.getUser(), order.getProductCarts());
+        return orderService.createNewOrder(loginUser, order.getProductCarts());
 
     }
 

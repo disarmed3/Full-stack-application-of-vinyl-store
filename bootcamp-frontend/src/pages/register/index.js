@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 
@@ -11,8 +11,11 @@ export default function RegisterPage() {
         phoneNumber: "",
         address: "",
     });
+    const [errorMessage, setErrorMessage] = useState("");
 
-    const isFormValid = Object.values(formData).every(field => field.trim() !== "");
+    const isFormValid = Object.values(formData).every(
+        (field) => field.trim() !== ""
+    );
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,12 +23,23 @@ export default function RegisterPage() {
 
     const handleRegister = async () => {
         try {
+            // Clear any previous error
+            setErrorMessage("");
             await axios.post("http://localhost:8080/users/register", formData);
             alert("Registration successful! Redirecting to login...");
             router.push("/login");
         } catch (error) {
             console.error("Registration failed:", error);
-            alert("Failed to register. Please try again.");
+
+            // Since the backend returns a 401 for an existing email without a message,
+            // check for the 401 status code and set the error message accordingly.
+            if (error.response && error.response.status === 401) {
+                setErrorMessage(
+                    "An account with this email already exists. Please use a different email."
+                );
+            } else {
+                setErrorMessage("Registration failed. Please try again.");
+            }
         }
     };
 
@@ -33,6 +47,9 @@ export default function RegisterPage() {
         <div style={styles.container}>
             <div style={styles.formWrapper}>
                 <h2 style={styles.title}>Create Your Account</h2>
+
+                {/* Display error message if one exists */}
+                {errorMessage && <div style={styles.error}>{errorMessage}</div>}
 
                 <input
                     type="text"
@@ -78,7 +95,10 @@ export default function RegisterPage() {
                 <button
                     onClick={handleRegister}
                     disabled={!isFormValid}
-                    style={{ ...styles.button, backgroundColor: isFormValid ? "#6a0dad" : "#cccccc" }}
+                    style={{
+                        ...styles.button,
+                        backgroundColor: isFormValid ? "#6a0dad" : "#cccccc",
+                    }}
                 >
                     Finish Registration
                 </button>
@@ -128,5 +148,9 @@ const styles = {
         color: "white",
         fontSize: "16px",
         cursor: "pointer",
+    },
+    error: {
+        color: "red",
+        marginBottom: "10px",
     },
 };
