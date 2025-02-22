@@ -73,6 +73,7 @@ public class UserService implements UserDetailsService {
     public void deleteUser(User authenticatedUser) {
         userRepository.delete(authenticatedUser);
     }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(username.toLowerCase());
