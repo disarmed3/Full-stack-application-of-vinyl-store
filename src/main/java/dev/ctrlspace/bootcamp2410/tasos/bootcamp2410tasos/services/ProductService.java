@@ -1,9 +1,8 @@
 package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services;
 
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.DbProduct;
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.ProductCart;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.DbProduct;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.ProductCart;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.ProductRepository;
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.ProductCart;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

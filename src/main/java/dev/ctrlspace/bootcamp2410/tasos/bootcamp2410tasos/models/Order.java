@@ -1,7 +1,6 @@
-package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities;
+package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.User;
 import jakarta.persistence.*;
 
 import java.time.Instant;

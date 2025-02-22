@@ -60,9 +60,8 @@ public class UserService implements UserDetailsService {
         if (existingUser == null) {
             throw new IllegalArgumentException("User not found");
         }
-        if (!existingUser.getRole().equals(updatedUser.getRole())) {
-            throw new AccessDeniedException("Role modification is not allowed.");
-        }
+        //overwrites role to prevent modification
+        updatedUser.setRole(existingUser.getRole());
 
         existingUser.setName(updatedUser.getName());
         existingUser.setPassword(updatedUser.getPassword());

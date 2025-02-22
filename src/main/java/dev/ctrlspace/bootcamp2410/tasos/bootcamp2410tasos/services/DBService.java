@@ -1,7 +1,7 @@
 package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services;
 
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.Order;
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.DbProduct;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.Order;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.DbProduct;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.User;
 
 import org.springframework.stereotype.Service;

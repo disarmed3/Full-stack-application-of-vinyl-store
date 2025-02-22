@@ -3,7 +3,7 @@ package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.controllers;
 
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.DTO.OrderResponse;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.User;
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.Order;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.Order;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services.OrderService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;

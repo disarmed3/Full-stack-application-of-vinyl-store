@@ -1,7 +1,7 @@
 package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.DTO;
 
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.Order;
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.ProductCart;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.Order;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.ProductCart;
 import lombok.Getter;
 
 import java.time.Instant;

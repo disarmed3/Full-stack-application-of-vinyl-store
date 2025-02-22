@@ -1,6 +1,6 @@
 package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.controllers;
 
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.DbProduct;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.DbProduct;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services.ProductService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;

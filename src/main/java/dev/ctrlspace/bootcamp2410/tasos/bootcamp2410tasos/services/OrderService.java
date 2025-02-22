@@ -1,9 +1,9 @@
 package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services;
 
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.DTO.OrderResponse;
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.Order;
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.DbProduct;
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.ProductCart;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.Order;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.DbProduct;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.ProductCart;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.User;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.OrderRepository;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.ProductCartRepository;

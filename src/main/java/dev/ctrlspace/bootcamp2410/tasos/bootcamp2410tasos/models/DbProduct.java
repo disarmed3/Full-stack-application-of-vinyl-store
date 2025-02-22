@@ -1,4 +1,4 @@
-package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities;
+package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models;
 
 import jakarta.persistence.*;
 

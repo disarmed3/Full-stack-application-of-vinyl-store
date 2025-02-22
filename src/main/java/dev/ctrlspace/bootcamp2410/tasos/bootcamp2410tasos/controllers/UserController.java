@@ -60,16 +60,35 @@ public class UserController {
     @PutMapping("/users")
     public User updateUser(@RequestBody User updatedUser, Authentication authentication) throws Exception {
         User authenticatedUser = (User) authentication.getPrincipal();
-        if ("ROLE_USER".equals(authenticatedUser.getRole()) &&
-                !authenticatedUser.getEmail().equals(updatedUser.getEmail())) {
-            throw new AccessDeniedException("Users can only update their own information.");
-        }
-        validateUserFields(updatedUser);
-        updatedUser.setId(authenticatedUser.getId());
 
+        if ("ROLE_USER".equals(authenticatedUser.getRole())) {
+            // Regular users can only update their own info.
+            if (!authenticatedUser.getEmail().equals(updatedUser.getEmail())) {
+                throw new AccessDeniedException("Users can only update their own information.");
+            }
+            updatedUser.setId(authenticatedUser.getId());
+            // Ensure the email is not changed by the user.
+            updatedUser.setEmail(authenticatedUser.getEmail());
+        } else if ("ROLE_ADMIN".equals(authenticatedUser.getRole())) {
+            // Admins can update any user's details.
+            // Since the payload does not include an ID, fetch the target user by email.
+            User targetUser = userService.getByEmail(updatedUser.getEmail());
+            if (targetUser == null) {
+                throw new IllegalArgumentException("User not found for email: " + updatedUser.getEmail());
+            }
+            updatedUser.setId(targetUser.getId());
+            // Prevent any role modifications by overwriting with the current role.
+            updatedUser.setRole(targetUser.getRole());
+        } else {
+            throw new AccessDeniedException("Unauthorized role.");
+        }
+
+        // Validate the user fields before updating.
+        validateUserFields(updatedUser);
         userService.updateUser(updatedUser);
         return userService.getByEmail(updatedUser.getEmail());
     }
+
 
     @DeleteMapping("/users/{email}")
     public void deleteUser(@PathVariable String email, Authentication authentication) {

@@ -1,7 +1,7 @@
 package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories;
 
 
-import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.dbentities.Order;
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
