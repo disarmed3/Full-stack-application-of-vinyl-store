@@ -9,13 +9,14 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 
 @Configuration
 @EnableMethodSecurity(
@@ -48,6 +49,7 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authz) ->
                         authz
+                                .requestMatchers("/login").permitAll()
                                 .requestMatchers("/users/register").permitAll()
                                 .requestMatchers("/users/**").hasAnyRole("ADMIN", "USER") // Users endpoint restricted by roles
                                 .requestMatchers("/orders/user/**").hasRole("USER") // Users can access their own orders
@@ -76,6 +78,11 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return NoOpPasswordEncoder.getInstance();                // Use BCrypt for password encoding
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService(UserService userService) {
+        return userService;
     }
 
 

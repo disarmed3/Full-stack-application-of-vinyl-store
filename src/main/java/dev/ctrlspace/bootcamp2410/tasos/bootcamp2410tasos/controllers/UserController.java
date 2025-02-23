@@ -6,6 +6,7 @@ import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services.OrderService;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -53,9 +54,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(Authentication authentication) throws Exception {
+    public ResponseEntity<LoginResponse> login(Authentication authentication) throws Exception {
         User user = (User) authentication.getPrincipal();
-        return userService.login(user.getEmail(), user.getPassword());
+        return ResponseEntity.ok(new LoginResponse(user.getEmail(), user.getRole()));
     }
 
     @PostMapping("/users/register")
