@@ -128,7 +128,11 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(() -> role.toUpperCase());
+        if (role == null || role.isBlank()) {
+            // Return an empty list so no authorities are granted.
+            return List.of();
+        }
+        return List.of(() -> role.toUpperCase());
     }
 
     @Override

@@ -30,14 +30,21 @@ public class UserController {
     public List<User> getAllUsers(Authentication authentication) {
         User authenticatedUser = (User) authentication.getPrincipal();
 
-        if (authenticatedUser.getRole().equals("ROLE_ADMIN")) {
+        // Ensure role is not null before checking its value
+        String role = authenticatedUser.getRole();
+        if (role == null) {
+            throw new SecurityException("User role is missing. Unauthorized access.");
+        }
+
+        if (role.equals("ROLE_ADMIN")) {
             return userService.getUsers();
-        } else if (authenticatedUser.getRole().equals("ROLE_USER")) {
+        } else if (role.equals("ROLE_USER")) {
             return List.of(userService.getByEmail(authenticatedUser.getEmail()));
         } else {
             throw new SecurityException("Unauthorized access");
         }
     }
+
 
     @GetMapping("/users/{email}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
