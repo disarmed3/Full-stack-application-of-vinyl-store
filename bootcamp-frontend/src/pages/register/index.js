@@ -12,6 +12,7 @@ export default function RegisterPage() {
         address: "",
     });
     const [errorMessage, setErrorMessage] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const isFormValid = Object.values(formData).every(
         (field) => field.trim() !== ""
@@ -21,26 +22,44 @@ export default function RegisterPage() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleRegister = async () => {
-        try {
-            // Clear any previous error
-            setErrorMessage("");
-            await axios.post("http://localhost:8080/users/register", formData);
-            alert("Registration successful! Redirecting to login...");
-            router.push("/login");
-        } catch (error) {
-            console.error("Registration failed:", error);
+    const handleRegister = (e) => {
+        e?.preventDefault(); // Prevent default form submission behavior if called from form
 
-            // Since the backend returns a 401 for an existing email without a message,
-            // check for the 401 status code and set the error message accordingly.
-            if (error.response && error.response.status === 401) {
-                setErrorMessage(
-                    "An account with this email already exists. Please use a different email."
-                );
-            } else {
-                setErrorMessage("Registration failed. Please try again.");
-            }
-        }
+        if (!isFormValid || isSubmitting) return;
+
+        setIsSubmitting(true);
+        setErrorMessage("");
+
+        // Use the promise-based approach instead of async/await
+        axios.post("http://localhost:8080/users/register", formData)
+            .then(response => {
+                alert("Registration successful! Redirecting to login...");
+                router.push("/login");
+            })
+            .catch(error => {
+                console.error("Registration failed:", error);
+
+                // Handle different error scenarios
+                if (error.response) {
+                    // The server responded with a status code outside the 2xx range
+                    if (error.response.status === 409) {
+                        setErrorMessage("An account with this email already exists. Please use a different email.");
+                    } else if (error.response.data && error.response.data.message) {
+                        setErrorMessage(error.response.data.message);
+                    } else {
+                        setErrorMessage(`Server error: ${error.response.status}`);
+                    }
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    setErrorMessage("No response from server. Please check your connection.");
+                } else {
+                    // Something happened in setting up the request
+                    setErrorMessage("Registration failed. Please try again later.");
+                }
+            })
+            .finally(() => {
+                setIsSubmitting(false);
+            });
     };
 
     return (
@@ -51,57 +70,59 @@ export default function RegisterPage() {
                 {/* Display error message if one exists */}
                 {errorMessage && <div style={styles.error}>{errorMessage}</div>}
 
-                <input
-                    type="text"
-                    name="name"
-                    placeholder="Full Name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    style={styles.input}
-                />
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Email Address"
-                    value={formData.email}
-                    onChange={handleChange}
-                    style={styles.input}
-                />
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    style={styles.input}
-                />
-                <input
-                    type="tel"
-                    name="phoneNumber"
-                    placeholder="Phone Number"
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    style={styles.input}
-                />
-                <input
-                    type="text"
-                    name="address"
-                    placeholder="Address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    style={styles.input}
-                />
+                <div style={{ width: "100%" }}>
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="Full Name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        style={styles.input}
+                    />
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Email Address"
+                        value={formData.email}
+                        onChange={handleChange}
+                        style={styles.input}
+                    />
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        style={styles.input}
+                    />
+                    <input
+                        type="tel"
+                        name="phoneNumber"
+                        placeholder="Phone Number"
+                        value={formData.phoneNumber}
+                        onChange={handleChange}
+                        style={styles.input}
+                    />
+                    <input
+                        type="text"
+                        name="address"
+                        placeholder="Address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        style={styles.input}
+                    />
 
-                <button
-                    onClick={handleRegister}
-                    disabled={!isFormValid}
-                    style={{
-                        ...styles.button,
-                        backgroundColor: isFormValid ? "#6a0dad" : "#cccccc",
-                    }}
-                >
-                    Finish Registration
-                </button>
+                    <button
+                        onClick={handleRegister}
+                        disabled={!isFormValid || isSubmitting}
+                        style={{
+                            ...styles.button,
+                            backgroundColor: isFormValid && !isSubmitting ? "#6a0dad" : "#cccccc",
+                        }}
+                    >
+                        {isSubmitting ? "Processing..." : "Finish Registration"}
+                    </button>
+                </div>
             </div>
         </div>
     );
