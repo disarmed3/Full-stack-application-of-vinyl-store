@@ -1,5 +1,6 @@
 package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.services;
 
+import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.exceptions.ProductExceptions.ProductValidationException;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.DbProduct;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models.ProductCart;
 import dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.repositories.ProductRepository;
@@ -27,7 +28,7 @@ public class ProductService {
         return productRepository.findBySku(sku);
     }
 
-    public DbProduct create(DbProduct productToAdd) throws Exception {
+    public DbProduct create(DbProduct productToAdd) throws ProductValidationException {
         // get product with max id
         // create SKU by incrementing max id and padding with 0s to 6 digits
         DbProduct productWithMaxId = productRepository.findByMaxSku();
@@ -45,12 +46,12 @@ public class ProductService {
         return productRepository.save(productToAdd);
 
     }
-    public void updateProduct(DbProduct productToUpdate) throws Exception {
+    public void updateProduct(DbProduct productToUpdate) throws ProductValidationException{
 
         var existingProduct = getProductBySku(productToUpdate.getSku());
 
         if (existingProduct == null) {
-            throw new Exception("Product not found");
+            throw new ProductValidationException("Product not found");
         }
 
 
