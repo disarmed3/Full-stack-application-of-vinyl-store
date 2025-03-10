@@ -2,6 +2,7 @@ package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
@@ -132,7 +133,7 @@ public class User implements UserDetails {
             // Return an empty list so no authorities are granted.
             return List.of();
         }
-        return List.of(() -> role.toUpperCase());
+        return List.of(new SimpleGrantedAuthority(role.toUpperCase()));
     }
 
     @Override
