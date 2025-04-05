@@ -3,6 +3,8 @@ package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.playwright;
 import com.microsoft.playwright.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import static org.springframework.test.util.AssertionErrors.*;
@@ -37,9 +39,11 @@ public class OrderUserTest {
             String initialCartCount = initialCartCountText.replaceAll("[^0-9]", "");
             assertTrue("Initial cart count should be 0", initialCartCount.equals("0"));
 
-            page.getByText("The Verve - Urban Hymns (1997)").click();
-            page.waitForURL("**/products/SKU-533");
-            assertTrue("URL should contain 'SKU-533'", page.url().contains("SKU-533"));
+            String product1 = "The Verve - Urban Hymns (1997)";
+            String product1SKU ="SKU-533";
+            page.getByText(product1).click();
+            page.waitForURL("**/products/"+product1SKU);
+            assertTrue("URL should contain 'SKU-533'", page.url().contains(product1SKU));
 
             // Store stock and price values
             String productInfo1 = page.locator(".product-card").textContent();
@@ -63,11 +67,13 @@ public class OrderUserTest {
             }
 
             // Set up dialog handler before clicking the button
-            page.onDialog(dialog -> {
+            Consumer<Dialog> addToCartHandler = dialog -> {
                 assertTrue("Dialog message should be 'Product added to cart!'",
                         dialog.message().equals("Product added to cart!"));
                 dialog.accept();
-            });
+            };
+
+            page.onDialog(addToCartHandler);
 
             // Click add to cart button
             page.locator(".add-to-cart-button").click();
@@ -85,9 +91,11 @@ public class OrderUserTest {
             page.waitForURL("**/products**");
             assertTrue("URL should contain 'products'", page.url().contains("products"));
 
-            page.getByText("Radiohead – OK Computer (1997)").click();
-            page.waitForURL("**/products/SKU-000870");
-            assertTrue("URL should contain 'SKU-000870'", page.url().contains("SKU-000870"));
+            String product2 = "Radiohead – OK Computer (1997)";
+            String product2SKU ="SKU-000870";
+            page.getByText(product2).click();
+            page.waitForURL("**/products/"+product2SKU);
+            assertTrue("URL should contain 'SKU-000870'", page.url().contains(product2SKU));
 
             // Store stock and price values
             String productInfo2 = page.locator(".product-card").textContent();
@@ -163,6 +171,55 @@ public class OrderUserTest {
             // Compare the expected and displayed totals
             assertTrue("Total price should be the sum of the two items: $" + expectedTotalFormatted,
                     displayedTotalPrice.equals(expectedTotalFormatted));
+
+
+            page.offDialog(addToCartHandler);
+
+            // Set up dialog handler before clicking the button
+            Consumer<Dialog> orderSuccessHandler = dialog -> {
+                assertTrue("Dialog message should be 'Order placed successfully!'",
+                        dialog.message().equals("Order placed successfully!"));
+                dialog.accept();
+            };
+
+            page.onDialog(orderSuccessHandler);
+
+            page.getByText("Place The Order").click();
+
+            page.waitForURL("**/orders**");
+            assertTrue("URL should contain 'orders'", page.url().contains("orders"));
+
+            // Get all order cards and select the last one
+            Locator orderCards = page.locator(".product-card");
+            Locator lastOrder = orderCards.last();
+
+            // Get the text from the last order card that contains both products
+            String orderText = lastOrder.textContent();
+
+            // Assert the order status is NEW
+            assertTrue("Order should be marked as NEW", orderText.contains("NEW"));
+
+            // Assert that the user email is present
+            assertTrue("Order should be placed by the signed in user", orderText.contains(expectedEmail));
+
+
+            // Split the text by semicolon to separate each product
+            String[] products = orderText.split(";");
+            assertTrue("Two products should be present", products.length >= 2);
+
+            // Trim the entries to remove any extra whitespace
+            String product1Text = products[0].trim();
+            String product2Text = products[1].trim();
+
+            // Assert product1 details
+            assertTrue("Product 1 should display the correct price", product1Text.contains(priceValue1));
+            assertTrue("Product 1 should have quantity 1", product1Text.contains("Quantity: 1"));
+            assertTrue("Product 1 should display correct SKU", product1Text.contains(product1SKU));
+
+            // Assert product2 details
+            assertTrue("Product 2 should display the correct price", product2Text.contains(priceValue2));
+            assertTrue("Product 2 should have quantity 1", product2Text.contains("Quantity: 1"));
+            assertTrue("Product 2 should display correct SKU", product2Text.contains(product2SKU));
 
 
         } finally {

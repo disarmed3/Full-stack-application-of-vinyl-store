@@ -10,7 +10,9 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 @SpringBootTest
 public class EditUserTest {
-
+    private final String userEmail = "tasos@ctrlspace.dev";
+    private final String userPassword= "123555";
+    private final String url="localhost:3000/login";
     @Test
     public void User_ShouldNot_Edit_Other_Users_Info() {
         Browser browser = null;
@@ -18,14 +20,14 @@ public class EditUserTest {
         try {
             browser = Playwright.create().chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
             page = browser.newPage();
-            String expectedEmail = "tasos@ctrlspace.dev";
+
 
             // Navigate to login page
-            page.navigate("http://localhost:3000/login");
+            page.navigate(url);
 
             // Fill in login credentials
-            page.locator("#formLoginEmailInputField").fill(expectedEmail);
-            page.locator("#formLoginPasswordInputField").fill("123555");
+            page.locator("#formLoginEmailInputField").fill(userEmail);
+            page.locator("#formLoginPasswordInputField").fill(userPassword);
 
             // Click login and wait for navigation to products page
             page.getByText("Log in").click();
@@ -42,11 +44,11 @@ public class EditUserTest {
             assertTrue("URL should contain 'users'", page.url().contains("users"));
 
             // Wait for email to be present in the page content
-            page.waitForSelector("text=" + expectedEmail);
+            page.waitForSelector("text=" + userEmail);
 
             // Get updated page content after waiting for email to appear
             String pageContent = page.content();
-            assertTrue("Expected email should be found", pageContent.contains(expectedEmail));
+            assertTrue("Expected email should be found", pageContent.contains(userEmail));
 
             // Find all email elements
             Locator emailElements = page.locator("text=/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/");
@@ -58,7 +60,7 @@ public class EditUserTest {
 
             for (int i = 0; i < emailCount; i++) {
                 String foundEmail = emailElements.nth(i).textContent();
-                assertEquals("Found unexpected email on the users page", expectedEmail, foundEmail);
+                assertEquals("Found unexpected email on the users page", userEmail, foundEmail);
 
 
             }

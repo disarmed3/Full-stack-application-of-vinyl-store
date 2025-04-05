@@ -4,7 +4,6 @@ import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +15,11 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 @SpringBootTest
 public class LoginLogoutTest {
 
+    private final String userEmail = "tasos@ctrlspace.dev";
+    private final String userPassword= "123555";
+    private final String adminEmail="csekas@ctrlspace.dev";
+    private final String adminPassword="1234";
+    private final String url="localhost:3000/login";
     private Browser browser;
     private Page page;
 
@@ -26,7 +30,7 @@ public class LoginLogoutTest {
         page = browser.newPage();
 
         // Navigate to login page
-        page.navigate("http://localhost:3000/login");
+        page.navigate(url);
     }
 
     @AfterEach
@@ -61,7 +65,7 @@ public class LoginLogoutTest {
     @Test
     public void Login_AsAdmin_shouldSucceed() {
         // Login as admin
-        performLogin("csekas@ctrlspace.dev", "1234");
+        performLogin(adminEmail, adminPassword);
 
         // Verify admin has access to add product functionality
         String buttonText = page.locator(".add-product-button").textContent();
@@ -74,7 +78,7 @@ public class LoginLogoutTest {
     @Test
     public void Login_AsCostumer_shouldSucceed() {
         // Login as customer
-        performLogin("tasos@ctrlspace.dev", "123555");
+        performLogin(userEmail, userPassword);
 
         // Verify customer does not have access to add product functionality
         boolean buttonExists = page.locator("text=Add a Product").count() > 0;

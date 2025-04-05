@@ -11,7 +11,9 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 @SpringBootTest
 public class NegativeLoginTest {
-
+    private final String userEmail = "tasos@ctrlspace.dev";
+    private final String userPassword= "123555";
+    private final String url="localhost:3000/login";
     private Browser browser;
     private Page page;
     private String[] dialogMessage;
@@ -24,7 +26,7 @@ public class NegativeLoginTest {
         page = browser.newPage();
 
         // Navigate to login page
-        page.navigate("http://localhost:3000/login");
+        page.navigate(url);
 
         // Initialize dialog tracking variables
         dialogMessage = new String[1];
@@ -86,7 +88,7 @@ public class NegativeLoginTest {
 
         // Fill in wrong username but some password
         page.locator("#formLoginEmailInputField").fill("wrong");
-        page.locator("#formLoginPasswordInputField").fill("1234");
+        page.locator("#formLoginPasswordInputField").fill(userPassword);
 
         // Attempt login and verify error
         attemptLoginAndVerifyError();
@@ -98,7 +100,7 @@ public class NegativeLoginTest {
         dialogOccurred[0] = false;
 
         // Fill in correct username but wrong password
-        page.locator("#formLoginEmailInputField").fill("tasos@ctrlspace.dev");
+        page.locator("#formLoginEmailInputField").fill(userEmail);
         page.locator("#formLoginPasswordInputField").fill("wrong");
 
         // Attempt login and verify error

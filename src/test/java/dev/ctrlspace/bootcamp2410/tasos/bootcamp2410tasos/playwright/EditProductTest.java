@@ -4,10 +4,17 @@ import com.microsoft.playwright.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.function.Consumer;
+
 import static org.springframework.test.util.AssertionErrors.*;
 
 @SpringBootTest
 public class EditProductTest {
+    private final String userEmail = "tasos@ctrlspace.dev";
+    private final String userPassword = "123555";
+    private final String adminEmail = "csekas@ctrlspace.dev";
+    private final String adminPassword = "1234";
+    private final String url = "localhost:3000/login";
 
     @Test
     public void User_ShouldNot_Edit_Products() {
@@ -16,14 +23,13 @@ public class EditProductTest {
         try {
             browser = Playwright.create().chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
             page = browser.newPage();
-            String expectedEmail = "tasos@ctrlspace.dev";
 
             // Navigate to login page
-            page.navigate("http://localhost:3000/login");
+            page.navigate(url);
 
             // Fill in login credentials
-            page.locator("#formLoginEmailInputField").fill(expectedEmail);
-            page.locator("#formLoginPasswordInputField").fill("123555");
+            page.locator("#formLoginEmailInputField").fill(userEmail);
+            page.locator("#formLoginPasswordInputField").fill(userPassword);
 
             // Click login and wait for navigation to products page
             page.getByText("Log in").click();
@@ -71,6 +77,73 @@ public class EditProductTest {
             int buttonCountByText = addProductButtonByText.count();
             assertEquals("'Add a Product' button should not exist (by class)", 0, buttonCountByClass);
             assertEquals("'Add a Product' button should not exist (by text)", 0, buttonCountByText);
+
+        } finally {
+            if (page != null) {
+                page.close();
+            }
+            if (browser != null) {
+                browser.close();
+            }
+        }
+    }
+
+    @Test
+    public void Admin_Should_Edit_Products() {
+        Browser browser = null;
+        Page page = null;
+        try {
+            browser = Playwright.create().chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+            page = browser.newPage();
+
+            // Navigate to login page
+            page.navigate(url);
+
+            // Fill in login credentials
+            page.locator("#formLoginEmailInputField").fill(adminEmail);
+            page.locator("#formLoginPasswordInputField").fill(adminPassword);
+
+            // Click login and wait for navigation to products page
+            page.getByText("Log in").click();
+
+            // Wait for URL to contain 'products'
+            page.waitForURL("**/products**");
+            assertTrue("URL should contain 'products'", page.url().contains("products"));
+
+            // Wait for page to be fully loaded
+            page.waitForLoadState();
+
+            // Verify "Add a Product" button is visible using proper selector syntax
+            page.getByText("Add a Product").click();
+
+            page.locator("input[placeholder='Name']").fill("Test Vinyl");
+            page.locator("textarea[placeholder='Description']").fill("Test Description");
+            page.locator("input[placeholder='Stock']").fill("10");
+            page.locator("input[placeholder='Price']").fill("100");
+
+            // Click and wait for navigation
+            page.getByText("Save").click();
+            page.waitForURL("**/products/SKU**");
+
+            page.waitForSelector("text=Test Vinyl");
+            assertTrue("Test Vinyl is not visible", page.getByText("Test Vinyl").isVisible());
+
+            page.getByText("Edit").click();
+            page.locator("input[type='Price']").fill("1000");
+            page.getByText("Save").click();
+
+            assertTrue("New Price not visible", page.getByText("1000").isVisible());
+
+            page.getByText("Delete").click();
+
+            // Set up dialog handler before clicking the button
+            Consumer<Dialog> DeleteHandler = dialog -> {
+                assertTrue("Dialog message should be 'Are you sure?'",
+                        dialog.message().equals("Are you sure?"));
+                dialog.accept();
+            };
+
+            page.onDialog(DeleteHandler);
 
         } finally {
             if (page != null) {
