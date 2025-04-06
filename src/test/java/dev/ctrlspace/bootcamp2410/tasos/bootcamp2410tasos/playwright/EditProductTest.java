@@ -116,6 +116,9 @@ public class EditProductTest {
             // Verify "Add a Product" button is visible using proper selector syntax
             page.getByText("Add a Product").click();
 
+            page.waitForURL("**/products/new**");
+            assertTrue("URL should contain 'new'", page.url().contains("new"));
+
             page.locator("input[placeholder='Name']").fill("Test Vinyl");
             page.locator("textarea[placeholder='Description']").fill("Test Description");
             page.locator("input[placeholder='Stock']").fill("10");
@@ -129,21 +132,42 @@ public class EditProductTest {
             assertTrue("Test Vinyl is not visible", page.getByText("Test Vinyl").isVisible());
 
             page.getByText("Edit").click();
-            page.locator("input[type='Price']").fill("1000");
+
+
+            page.locator("input[placeholder='Price']").fill("1000");
             page.getByText("Save").click();
 
-            assertTrue("New Price not visible", page.getByText("1000").isVisible());
+            page.waitForLoadState();
 
-            page.getByText("Delete").click();
 
-            // Set up dialog handler before clicking the button
-            Consumer<Dialog> DeleteHandler = dialog -> {
-                assertTrue("Dialog message should be 'Are you sure?'",
-                        dialog.message().equals("Are you sure?"));
-                dialog.accept();
+            page.waitForSelector("text=1000",new Page.WaitForSelectorOptions().setTimeout(5000));
+            assertTrue("Price is not visible", page.getByText("1000").isVisible());
+
+            Consumer<Dialog> dialogHandler = dialog -> {
+                String message = dialog.message();
+                System.out.println("Dialog message: " + message);
+
+                if (message.equals("Are you sure?") || message.contains("deleted successfully")) {
+                    // Accept any dialog that matches expected patterns
+                    dialog.accept();
+                } else {
+                    // If unexpected dialog appears, fail with details
+                    fail("Unexpected dialog message: " + message);
+                }
             };
 
-            page.onDialog(DeleteHandler);
+            // Register the handler
+            page.onDialog(dialogHandler);
+
+            page.getByText("Delete").click();
+            page.waitForURL("**/products");
+            assertTrue("URL should end in 'products'", page.url().endsWith("products"));
+
+            Locator testVinylLocator = page.getByText("Test Vinyl");
+            int count = testVinylLocator.count();
+            assertEquals("Test Vinyl should be deleted", 0, count);
+
+            page.offDialog(dialogHandler);
 
         } finally {
             if (page != null) {
