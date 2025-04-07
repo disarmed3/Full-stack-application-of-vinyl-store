@@ -1,6 +1,7 @@
 package dev.ctrlspace.bootcamp2410.tasos.bootcamp2410tasos.playwright;
 
 import com.microsoft.playwright.*;
+import com.microsoft.playwright.options.WaitForSelectorState;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -140,7 +141,7 @@ public class EditProductTest {
             page.waitForLoadState();
 
 
-            page.waitForSelector("text=1000",new Page.WaitForSelectorOptions().setTimeout(5000));
+            page.waitForSelector("text=1000", new Page.WaitForSelectorOptions().setTimeout(5000));
             assertTrue("Price is not visible", page.getByText("1000").isVisible());
 
             Consumer<Dialog> dialogHandler = dialog -> {
@@ -178,4 +179,6 @@ public class EditProductTest {
             }
         }
     }
+
+
 }

@@ -12,6 +12,8 @@ import static org.springframework.test.util.AssertionErrors.assertTrue;
 public class EditUserTest {
     private final String userEmail = "tasos@ctrlspace.dev";
     private final String userPassword= "123555";
+    private final String adminEmail = "csekas@ctrlspace.dev";
+    private final String adminPassword= "1234";
     private final String url="localhost:3000/login";
     @Test
     public void User_ShouldNot_Edit_Other_Users_Info() {
@@ -33,15 +35,15 @@ public class EditUserTest {
             page.getByText("Log in").click();
 
             // Wait for URL to contain 'products'
-            page.waitForURL("**/products**");
-            assertTrue("URL should contain 'products'", page.url().contains("products"));
+            page.waitForURL("**/products");
+            assertTrue("URL should contain 'products'", page.url().endsWith("products"));
 
             // Click on Users and wait for navigation
             page.getByText("Users").click();
 
             // Wait for URL to contain 'users'
-            page.waitForURL("**/users**");
-            assertTrue("URL should contain 'users'", page.url().contains("users"));
+            page.waitForURL("**/users");
+            assertTrue("URL should contain 'users'", page.url().endsWith("users"));
 
             // Wait for email to be present in the page content
             page.waitForSelector("text=" + userEmail);
@@ -68,6 +70,63 @@ public class EditUserTest {
             String buttonText = page.locator(".button-container").textContent();
             assertTrue("Button should contain 'Edit'", buttonText.contains("Edit"));
             assertTrue("Button should contain 'Delete'", buttonText.contains("Delete"));
+
+
+        }
+
+        finally {
+            if (page != null) {
+                page.close();
+            }
+            if (browser != null) {
+                browser.close();
+            }
+        }
+    }
+
+    @Test
+    public void Admin_Should_Edit_Other_Users_Info() {
+        Browser browser = null;
+        Page page = null;
+        try {
+            browser = Playwright.create().chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+            page = browser.newPage();
+
+            // Navigate to login page
+            page.navigate(url);
+
+            // Fill in admin login credentials
+            page.locator("#formLoginEmailInputField").fill(adminEmail);
+            page.locator("#formLoginPasswordInputField").fill(adminPassword);
+
+            // Click login and wait for navigation to products page
+            page.getByText("Log in").click();
+
+            // Wait for URL to contain 'products'
+            page.waitForURL("**/products");
+            assertTrue("URL should contain 'products'", page.url().endsWith("products"));
+
+            // Click on Users and wait for navigation
+            page.getByText("Users").click();
+
+            // Wait for URL to contain 'users'
+            page.waitForURL("**/users");
+            assertTrue("URL should contain 'users'", page.url().endsWith("users"));
+
+            // Verify admin email is visible on the page
+            assertTrue("Admin email should be visible on the page",page.waitForSelector("text=" + adminEmail).isVisible());
+
+            // Find and click the admin user link
+            page.locator("a[href='/users/details?email=" + java.net.URLEncoder.encode(adminEmail, java.nio.charset.StandardCharsets.UTF_8) + "']").click();
+
+            page.waitForURL("**/users/details**");
+            assertTrue("URL should contain 'users/details'", page.url().contains("users/details"));
+
+            // Verify admin can edit his own information
+            String buttonText = page.locator(".button-container").textContent();
+            assertTrue("Button should contain 'Edit'", buttonText.contains("Edit"));
+            assertTrue("Button should contain 'Delete'", buttonText.contains("Delete"));
+
 
         } finally {
             if (page != null) {
